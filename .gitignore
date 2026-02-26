@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+.uv/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Secrets and environment
+.env
+*.env
+.env.*
+secrets.json
+credentials.json
+
+# Data — raw datasets never committed
+data/academic/
+data/live_tweets/
+data/lumen/
+*.csv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+# Model artifacts
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+
+# ML experiment tracking
+mlruns/
+wandb/
+outputs/
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp

@@ -8,22 +8,20 @@ dependencies = [
     "numpy>=1.24",
     "matplotlib>=3.7",
     "ipykernel>=6.0",
-
     # mmm-marketing
     "pymc-marketing>=0.5",
     "arviz>=0.17",
-
     # chronometer-mimic
     "torch>=2.2",
     "transformers>=4.40",
     "datasets>=2.18",
     "meds-transforms>=0.3",
-
     # content-moderation
     "scikit-learn>=1.4",
     "sentence-transformers>=3.0",
     "chromadb>=0.5",
     "tweepy>=4.14",
+    "nbconvert>=7.17.0",
 ]
 
 [tool.pytest.ini_options]

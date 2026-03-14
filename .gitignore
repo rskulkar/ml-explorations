@@ -40,6 +40,8 @@ data/lumen/
 *.feather
 *.h5
 *.hdf5
+*.sqlite
+*.db
 
 # Model artifacts
 *.pkl

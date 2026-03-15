@@ -1,0 +1,39 @@
+INCIDENT RESPONSE PROCEDURE
+Version: 2.0 | Effective: 2024-06-01 | Owner: Security Operations
+
+1. PURPOSE
+Define the steps the organisation follows when a security incident is detected to
+minimise impact and restore normal operations promptly.
+
+2. INCIDENT CLASSIFICATION
+- Severity 1 (Critical): Data breach, ransomware, complete system outage.
+- Severity 2 (High): Malware infection, unauthorised privilege escalation.
+- Severity 3 (Medium): Phishing attempt, policy violation, suspicious activity.
+
+3. RESPONSE PHASES
+
+Phase 1 — Detection & Identification
+Security alerts are monitored by the IT team during business hours (09:00–18:00).
+Alerts outside business hours are reviewed the following morning. Incidents are
+logged in the IT helpdesk ticketing system.
+
+Phase 2 — Containment
+The affected system is isolated from the network. Temporary access controls are
+applied to limit lateral movement.
+
+Phase 3 — Eradication
+Malicious artefacts are removed. Systems are patched and hardened before
+restoration.
+
+Phase 4 — Recovery
+Systems are restored from the most recent clean backup. Business stakeholders are
+notified once systems are operational.
+
+4. NOTED DEFICIENCIES
+- No 24/7 on-call rotation; critical incidents outside business hours go undetected.
+- No formal communication plan: regulators, customers, and legal counsel are not
+  notified within required timeframes.
+- Post-incident reviews (lessons learned) are performed informally and findings
+  are not tracked or fed back into security controls.
+- Incident response runbooks exist only for ransomware; other attack types lack
+  documented procedures.

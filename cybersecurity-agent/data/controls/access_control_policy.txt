@@ -1,0 +1,35 @@
+ACCESS CONTROL POLICY
+Version: 1.2 | Effective: 2025-01-01 | Owner: IT Security
+
+1. PURPOSE
+This policy establishes requirements for controlling access to information systems
+and data assets within the organisation.
+
+2. SCOPE
+Applies to all employees, contractors, and third-party users who access organisational
+systems.
+
+3. POLICY STATEMENTS
+
+3.1 User Access Provisioning
+All user accounts must be created via a formal request submitted to the IT helpdesk.
+Line managers must approve access requests before provisioning occurs.
+
+3.2 Authentication
+Multi-factor authentication (MFA) is mandatory for all system administrators and
+privileged accounts. Standard user accounts require MFA only for remote access.
+
+3.3 Role-Based Access Control
+Access is granted based on job function using predefined role templates. Users are
+assigned to one or more roles that reflect their business responsibilities.
+
+3.4 Access Reviews
+Access rights are reviewed on a quarterly basis for privileged accounts. General
+user accounts are reviewed annually.
+
+4. GAPS AND WEAKNESSES (noted by internal audit)
+- No formal process for revoking access when employees change roles (role migration).
+- Privileged access management (PAM) tooling is not in place; privileged sessions
+  are not recorded or monitored.
+- Segregation of duties is not enforced at the system level for financial applications.
+- Third-party contractor access is not time-limited or automatically expired.

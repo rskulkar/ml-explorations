@@ -1,0 +1,32 @@
+DATA CLASSIFICATION POLICY
+Version: 1.0 | Effective: 2024-03-15 | Owner: Data Governance
+
+1. PURPOSE
+Establish a consistent framework for classifying organisational data so that
+appropriate protection measures can be applied throughout the data lifecycle.
+
+2. CLASSIFICATION TIERS
+
+Tier 1 — Public
+Information approved for unrestricted public release (e.g., marketing materials,
+published financial reports).
+
+Tier 2 — Internal
+Information intended for internal use only. Disclosure outside the organisation
+requires management approval (e.g., internal memos, project plans, HR policies).
+
+Tier 3 — Confidential
+Sensitive information whose unauthorised disclosure could cause significant harm
+(e.g., customer PII, financial data, intellectual property, authentication credentials).
+
+3. LABELLING
+Documents must be labelled with the appropriate classification tier in the header
+or footer. Email subjects containing confidential data should include "[CONFIDENTIAL]".
+
+4. KNOWN GAPS
+- No data handling procedures specify encryption requirements per classification tier.
+- No data retention schedules define how long each tier must be retained or when
+  it must be destroyed.
+- Third-party data sharing agreements do not reference classification requirements.
+- There is no inventory (data register) of where Tier 3 data is stored or processed.
+- Staff training on data classification has not been delivered in the past 18 months.

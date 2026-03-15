@@ -24,6 +24,9 @@ dependencies = [
     "nbconvert>=7.17.0",
     # sql-generator
     "anthropic>=0.25",
+    # cybersecurity-agent
+    "pypdf>=3.0",
+    "requests>=2.31",
 ]
 
 [tool.pytest.ini_options]

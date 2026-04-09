@@ -36,6 +36,7 @@ testpaths = [
     "content-moderation/tests",
     "cybersecurity-agent/tests",
     "sql-generator/tests",
+    "clinical-trial-optimizer/tests",
 ]
 
 [build-system]

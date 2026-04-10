@@ -15,8 +15,9 @@ def load_pubmedbert() -> SentenceTransformer:
     Returns:
         SentenceTransformer model (BioLink-Transformers or pubmedbert variant).
     """
-    # TODO: implement model loading
-    pass
+    print("Loading PubMedBERT...")
+    model = SentenceTransformer("microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract")
+    return model
 
 
 def embed_chunks(
@@ -33,5 +34,9 @@ def embed_chunks(
     Returns:
         numpy array of shape (len(chunks), embedding_dim).
     """
-    # TODO: implement chunk embedding
-    pass
+    if model is None:
+        model = load_pubmedbert()
+
+    texts = [chunk.text for chunk in chunks]
+    embeddings = model.encode(texts, show_progress_bar=True, batch_size=32)
+    return embeddings

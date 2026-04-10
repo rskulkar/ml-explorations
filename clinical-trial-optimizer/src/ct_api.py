@@ -78,7 +78,6 @@ I/E criteria:
 def fetch_competing_trials(
     ie_criteria: str,
     api_key: str | None = None,
-    phases: list[str] | None = None,
     statuses: list[str] | None = None,
     page_size: int = 20,
     max_retries: int = 3,
@@ -93,7 +92,6 @@ def fetch_competing_trials(
     Args:
         ie_criteria:  Raw I/E criteria text (same input as SOC/ET agents).
         api_key:      Optional Anthropic API key for LLM search term extraction.
-        phases:       CT phases to include. Default: Phase 2, Phase 3.
         statuses:     Trial statuses to include. Default: Recruiting,
                       Active not recruiting, Completed.
         page_size:    Max trials to retrieve (default 20).
@@ -107,8 +105,6 @@ def fetch_competing_trials(
 
         Returns an empty-table string if no trials found or API unreachable.
     """
-    if phases is None:
-        phases = ["PHASE2", "PHASE3"]
     if statuses is None:
         statuses = ["RECRUITING", "ACTIVE_NOT_RECRUITING", "COMPLETED"]
 
@@ -120,7 +116,6 @@ def fetch_competing_trials(
         "pageSize": page_size,
         "fields": CT_FIELDS,
         "filter.overallStatus": ",".join(statuses),
-        "filter.phase": ",".join(phases),
     }
     if terms["condition"]:
         params["query.cond"] = terms["condition"]

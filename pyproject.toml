@@ -24,9 +24,14 @@ dependencies = [
     "nbconvert>=7.17.0",
     # sql-generator
     "anthropic>=0.25",
+    # clinical-trial-optimizer
+    "faiss-cpu>=1.8",
+    "rank-bm25>=0.2",
     # cybersecurity-agent
     "pypdf>=3.0",
     "requests>=2.31",
+    "openpyxl>=3.1.5",
+    "tabulate>=0.10.0",
 ]
 
 [tool.pytest.ini_options]

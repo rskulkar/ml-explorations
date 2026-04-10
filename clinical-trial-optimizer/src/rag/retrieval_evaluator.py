@@ -31,5 +31,30 @@ def evaluate_retrieval(
     Returns:
         RetrievalMetrics object.
     """
-    # TODO: implement retrieval evaluation
-    pass
+    relevant_set = set(relevant_nct_ids)
+    results_to_eval = results[:k]
+
+    # Precision@K: count relevant results in top-k
+    relevant_count = 0
+    for result in results_to_eval:
+        if result.chunk.source_nct_id in relevant_set:
+            relevant_count += 1
+    precision_at_k = relevant_count / k if k > 0 else 0.0
+
+    # MRR: reciprocal rank of first relevant result
+    mrr = 0.0
+    for rank, result in enumerate(results_to_eval, start=1):
+        if result.chunk.source_nct_id in relevant_set:
+            mrr = 1.0 / rank
+            break
+
+    # Coverage: unique relevant NCT IDs found / total relevant NCT IDs
+    retrieved_nct_ids = {result.chunk.source_nct_id for result in results}
+    found_relevant = len(retrieved_nct_ids & relevant_set)
+    coverage = found_relevant / len(relevant_set) if len(relevant_set) > 0 else 0.0
+
+    return RetrievalMetrics(
+        precision_at_k=precision_at_k,
+        mrr=mrr,
+        coverage=coverage,
+    )

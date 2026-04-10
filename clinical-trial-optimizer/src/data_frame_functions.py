@@ -1,18 +1,4 @@
-"""Data utility functions for clinical-trial-optimizer.
-
-Provides:
-    - filterSOCLOT: filters a standard-of-care lines-of-therapy DataFrame by
-      indication and line-of-therapy criteria.
-    - formatSOCLotDF: formats a filtered SOC DataFrame into markdown suitable
-      for agent prompts.
-    - filterETLOT: filters an evolving-treatment lines-of-therapy DataFrame by
-      indication, treatment period, and date range.
-    - formatETLotDF: formats a filtered ET DataFrame into markdown suitable
-      for agent prompts.
-"""
-import numpy as np
-import pandas as pd
-from pandas.api.types import CategoricalDtype
+import pandas as pd 
 
 # ===== SOC: Format the DataFrame for the agent =====
 def formatSOCLotDF(df):
@@ -22,7 +8,7 @@ def formatSOCLotDF(df):
     # Convert the fraction column to percentage strings
     if '% (Per Line)' in df_formatted.columns:
         df_formatted['% (Per Line)'] = (df_formatted['% (Per Line)'] * 100).round(2).astype(str) + '%'
-    elif '% (per line)' in df_formatted.columns:  # case-insensitive check
+    elif '% (per line)' in lot_df_formatted.columns:  # case-insensitive check
         df_formatted['% (per line)'] = (df_formatted['% (per line)'] * 100).round(2).astype(str) + '%'
 
     # Convert to markdown table for clean parsing
@@ -73,7 +59,11 @@ def formatETLotDF(df):
 
 # ===== ET: Assign Gap and Trend to LOT data =====
 def filterETLOT(df1, df2 ):
-    ## Match Regimens
+    import numpy as np 
+    import pandas as pd 
+    from pandas.api.types import CategoricalDtype
+    
+    ## Match Regimens 
     df1.Regimen = df1.Regimen.str.lower()
     df2.Regimen = df2.Regimen.str.lower()
     

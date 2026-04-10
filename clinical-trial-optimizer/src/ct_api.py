@@ -119,8 +119,8 @@ def fetch_competing_trials(
         "format": "json",
         "pageSize": page_size,
         "fields": CT_FIELDS,
-        "filter.overallStatus": "|".join(statuses),
-        "filter.phase": "|".join(phases),
+        "filter.overallStatus": ",".join(statuses),
+        "filter.phase": ",".join(phases),
     }
     if terms["condition"]:
         params["query.cond"] = terms["condition"]

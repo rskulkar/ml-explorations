@@ -43,10 +43,11 @@ def extract_search_terms_via_llm(ie_criteria: str, api_key: str | None = None) -
     Returns dict with keys: condition, intr
     Falls back to empty strings on any failure so fetch_competing_trials degrades gracefully.
     """
-    prompt = """From the clinical trial I/E criteria below, extract two search terms for ClinicalTrials.gov API.
+    prompt = """From the clinical trial I/E criteria below, extract two SHORT search terms for ClinicalTrials.gov API.
 
-1. condition: disease name + stage + biomarker positivity (max 5 words, no punctuation, use + for biomarker positivity not -)
-2. intr: primary drug class or key agent name (max 3 words, no punctuation)
+Rules:
+- condition: 2-3 words maximum. Disease abbreviation + biomarker only. Example: "NSCLC EGFR" not "metastatic non-squamous NSCLC EGFR positive"
+- intr: 1-2 words maximum. Key drug name only, not drug class. Example: "osimertinib" not "tyrosine kinase inhibitor"
 
 Output ONLY valid JSON with exactly these two keys, nothing else:
 {"condition": "...", "intr": "..."}

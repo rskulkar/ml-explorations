@@ -6,9 +6,11 @@ Provides:
       structured trial data for competitive intelligence analysis.
 """
 import re
+import json
 import time
 import requests
 import pandas as pd
+import anthropic
 
 
 # ---------------------------------------------------------------------------
@@ -34,119 +36,48 @@ CT_FIELDS = ",".join([
 ])
 
 
-def _extract_search_terms(ie_criteria: str) -> dict:
+def extract_search_terms_via_llm(ie_criteria: str, api_key: str | None = None) -> dict:
     """
-    Derive ClinicalTrials.gov search parameters from I/E criteria text.
+    Use Claude Haiku to extract clean ClinicalTrials.gov search terms from I/E criteria.
 
-    Extracts:
-        condition  — disease + biomarker context (e.g. "EGFR mutant NSCLC")
-        intr       — drug or therapy class (e.g. "amivantamab osimertinib")
-
-    Strategy: regex for common oncology biomarker/disease patterns + drug names.
-    Deliberately conservative — better to over-fetch and filter than miss trials.
+    Returns dict with keys: condition, intr
+    Falls back to empty strings on any failure so fetch_competing_trials degrades gracefully.
     """
-    text = ie_criteria.lower()
+    prompt = """From the clinical trial I/E criteria below, extract two search terms for ClinicalTrials.gov API.
 
-    # --- Disease / condition ---
-    condition_hints = []
+1. condition: disease name + stage + biomarker positivity (max 5 words, no punctuation, use + for biomarker positivity not -)
+2. intr: primary drug class or key agent name (max 3 words, no punctuation)
 
-    disease_patterns = [
-        r"(non.?small.?cell lung cancer|nsclc)",
-        r"(small.?cell lung cancer|sclc)",
-        r"(breast cancer)",
-        r"(colorectal cancer|crc)",
-        r"(ovarian cancer)",
-        r"(prostate cancer)",
-        r"(bladder cancer|urothelial)",
-        r"(pancreatic cancer)",
-        r"(hepatocellular carcinoma|hcc)",
-        r"(gastric.?cancer|gastroesophageal)",
-        r"(melanoma)",
-        r"(glioblastoma|glioma)",
-        r"(multiple myeloma)",
-        r"(lymphoma)",
-        r"(leukemia)",
-        r"(renal cell carcinoma|rcc)",
-    ]
-    for pat in disease_patterns:
-        m = re.search(pat, text)
-        if m:
-            condition_hints.append(m.group(1).strip())
-            break  # take first match only
+Output ONLY valid JSON with exactly these two keys, nothing else:
+{"condition": "...", "intr": "..."}
 
-    biomarker_patterns = [
-        r"(egfr[^\s,;]*(?:exon\s*\d+[^\s,;]*)?)",
-        r"(kras[^\s,;]*)",
-        r"(alk[^\s,;]*)",
-        r"(ros1[^\s,;]*)",
-        r"(her2[^\s,;]*|erbb2[^\s,;]*)",
-        r"(braf[^\s,;]*)",
-        r"(met[^\s,;]*(?:exon\s*\d+[^\s,;]*)?)",
-        r"(pd.?l1[^\s,;]*)",
-        r"(brca[^\s,;]*)",
-        r"(fgfr[^\s,;]*)",
-        r"(ntrk[^\s,;]*)",
-        r"(ret[^\s,;]*)",
-    ]
-    for pat in biomarker_patterns:
-        m = re.search(pat, text)
-        if m:
-            condition_hints.append(m.group(1).strip())
+I/E criteria:
+""" + ie_criteria
 
-    condition_query = " ".join(condition_hints[:3]) if condition_hints else ""
-
-    # --- Intervention / drug ---
-    # Named drugs — expand as needed for other indications
-    drug_patterns = [
-        r"\b(osimertinib|tagrisso)\b",
-        r"\b(amivantamab|rybrevant)\b",
-        r"\b(lazertinib|lazcluze)\b",
-        r"\b(erlotinib|tarceva)\b",
-        r"\b(gefitinib|iressa)\b",
-        r"\b(afatinib|gilotrif)\b",
-        r"\b(dacomitinib)\b",
-        r"\b(pembrolizumab|keytruda)\b",
-        r"\b(nivolumab|opdivo)\b",
-        r"\b(atezolizumab|tecentriq)\b",
-        r"\b(durvalumab|imfinzi)\b",
-        r"\b(carboplatin)\b",
-        r"\b(pemetrexed|alimta)\b",
-        r"\b(docetaxel|taxotere)\b",
-        r"\b(paclitaxel|taxol)\b",
-        r"\b(bevacizumab|avastin)\b",
-        r"\b(sotorasib|lumakras)\b",
-        r"\b(adagrasib|krazati)\b",
-        r"\b(capmatinib|tabrecta)\b",
-        r"\b(tepotinib|tepmetko)\b",
-        r"\b(crizotinib|xalkori)\b",
-        r"\b(alectinib|alecensa)\b",
-        r"\b(lorlatinib|lorbrena)\b",
-    ]
-    drug_hits = []
-    for pat in drug_patterns:
-        m = re.search(pat, text)
-        if m:
-            drug_hits.append(m.group(1))
-
-    # Class-level fallback
-    if not drug_hits:
-        if re.search(r"\btki\b|tyrosine kinase inhibitor", text):
-            drug_hits.append("tyrosine kinase inhibitor")
-        if re.search(r"\bimmunotherapy\b|checkpoint inhibitor", text):
-            drug_hits.append("immunotherapy")
-        if re.search(r"\bchemotherapy\b", text):
-            drug_hits.append("chemotherapy")
-
-    intr_query = " ".join(drug_hits[:3]) if drug_hits else ""
-
-    return {
-        "condition": condition_query,
-        "intr": intr_query,
-    }
+    try:
+        client = anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=100,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = response.content[0].text.strip()
+        # Strip markdown fences if present
+        raw = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw, flags=re.DOTALL).strip()
+        terms = json.loads(raw)
+        return {
+            "condition": str(terms.get("condition", "")).strip(),
+            "intr": str(terms.get("intr", "")).strip(),
+        }
+    except Exception as exc:
+        # Degrade gracefully — empty terms will still call the API with no filters
+        print(f"Warning: LLM search term extraction failed ({exc}). Using empty terms.")
+        return {"condition": "", "intr": ""}
 
 
 def fetch_competing_trials(
     ie_criteria: str,
+    api_key: str | None = None,
     phases: list[str] | None = None,
     statuses: list[str] | None = None,
     page_size: int = 20,
@@ -156,11 +87,12 @@ def fetch_competing_trials(
     """
     Fetch competing trials from ClinicalTrials.gov API v2.
 
-    Derives search terms from ie_criteria, queries the API, and returns
+    Derives search terms from ie_criteria using Claude Haiku, queries the API, and returns
     a pre-processed markdown table string ready to pass into get_ci_agent_prompt().
 
     Args:
         ie_criteria:  Raw I/E criteria text (same input as SOC/ET agents).
+        api_key:      Optional Anthropic API key for LLM search term extraction.
         phases:       CT phases to include. Default: Phase 2, Phase 3.
         statuses:     Trial statuses to include. Default: Recruiting,
                       Active not recruiting, Completed.
@@ -180,7 +112,8 @@ def fetch_competing_trials(
     if statuses is None:
         statuses = ["RECRUITING", "ACTIVE_NOT_RECRUITING", "COMPLETED"]
 
-    terms = _extract_search_terms(ie_criteria)
+    terms = extract_search_terms_via_llm(ie_criteria, api_key)
+    print(f"Search terms extracted: condition='{terms['condition']}', intr='{terms['intr']}'")
 
     params = {
         "format": "json",

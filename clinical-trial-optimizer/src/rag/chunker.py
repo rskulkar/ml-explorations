@@ -6,6 +6,7 @@ Provides:
     - chunk_competing_trials: Extract and chunk criteria from competing trials table.
 """
 import json
+import re
 import logging
 from dataclasses import dataclass, field
 from typing import Optional
@@ -71,6 +72,7 @@ def parse_criteria_via_llm(
             messages=[{"role": "user", "content": user_message}],
         )
         raw = response.content[0].text.strip()
+        raw = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw, flags=re.DOTALL).strip()
         parsed = json.loads(raw)
 
         chunks = []

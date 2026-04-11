@@ -5,6 +5,7 @@ Provides:
     - reason_about_criterion: LLM-based reasoning on whether to KEEP/RELAX/TIGHTEN a criterion.
 """
 import json
+import re
 import logging
 from dataclasses import dataclass, field
 
@@ -85,6 +86,7 @@ Based on this competitive evidence, evaluate the source criterion and output JSO
             messages=[{"role": "user", "content": user_message}],
         )
         raw = response.content[0].text.strip()
+        raw = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw, flags=re.DOTALL).strip()
         parsed = json.loads(raw)
 
         return CIRecommendation(

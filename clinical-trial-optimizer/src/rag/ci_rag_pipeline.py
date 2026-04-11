@@ -88,8 +88,8 @@ def run_ci_rag(
     logger.info("Step 5: Parsing source I/E criteria...")
     source_chunks = parse_criteria_via_llm(ie_criteria, "SOURCE", "Source Trial", {}, api_key)
     # Filter to treatment-related criteria
-    source_chunks = [c for c in source_chunks if c.metadata.get("treatment_related", False)]
-    logger.info(f"Extracted {len(source_chunks)} treatment-related source criteria")
+    #source_chunks = [c for c in source_chunks if c.metadata.get("treatment_related", False)]
+    #logger.info(f"Extracted {len(source_chunks)} treatment-related source criteria")
 
     if not source_chunks:
         logger.warning("No treatment-related criteria in source. Returning empty DataFrame.")

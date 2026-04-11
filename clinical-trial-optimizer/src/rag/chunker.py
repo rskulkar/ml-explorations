@@ -75,6 +75,9 @@ def parse_criteria_via_llm(
         raw = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw, flags=re.DOTALL).strip()
         parsed = json.loads(raw)
 
+        if isinstance(parsed, dict):
+            parsed = [parsed]
+
         chunks = []
         for item in parsed:
             chunk = CriterionChunk(

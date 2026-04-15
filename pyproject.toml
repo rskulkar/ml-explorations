@@ -32,6 +32,7 @@ dependencies = [
     "requests>=2.31",
     "openpyxl>=3.1.5",
     "tabulate>=0.10.0",
+    "streamlit>=1.56.0",
 ]
 
 [tool.pytest.ini_options]
@@ -42,6 +43,7 @@ testpaths = [
     "cybersecurity-agent/tests",
     "sql-generator/tests",
     "clinical-trial-optimizer/tests",
+    "job-search-copilot/tests",
 ]
 
 [build-system]

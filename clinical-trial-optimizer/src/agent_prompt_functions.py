@@ -200,7 +200,7 @@ Column rules:
   - For **Exclusion:** use template →
     "Exclude participants who have received [REGIMEN] as [LINE(S)] systemic therapy for [DISEASE STAGE]."
   - Avoid ambiguous phrases like "most recent line." Substitute explicit lines and stages extracted from I/E text.
-
+  
 Post-Processing: Consolidated Suggestions
 After table generation:
 

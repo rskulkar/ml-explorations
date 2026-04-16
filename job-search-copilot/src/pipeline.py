@@ -6,23 +6,22 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-from .memory import (
+from memory import (
     init_db,
     upsert_job,
     get_job,
     upsert_interviewer,
     get_all_jobs_with_analyses,
 )
-from .jd_fetcher import load_jd
-from .company_research import search_company, merge_with_override, build_company_profile_text
-from .interviewer import build_interviewer_context
-from .prompt1 import run_prompt1
-from .prompt2 import run_prompt2
-from .prompt3 import run_prompt3
+from jd_fetcher import load_jd
+from company_research import search_company, merge_with_override, build_company_profile_text
+from interviewer import build_interviewer_context
+from prompt1 import run_prompt1
+from prompt2 import run_prompt2
+from prompt3 import run_prompt3
 
 # Default DB path
 DB_PATH = str(Path(__file__).parent.parent / "data" / "memory" / "copilot.db")
-
 
 def run_job_analysis(
     jd_source: str,

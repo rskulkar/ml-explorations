@@ -11,7 +11,7 @@ import streamlit as st
 # Add src/ to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from memory import init_db, list_jobs
+from memory import init_db, list_jobs, get_job
 from pipeline import run_job_analysis
 
 st.set_page_config(page_title="Add Job", layout="wide")
@@ -77,12 +77,10 @@ if st.button("Analyse Job"):
         st.session_state["last_job_id"] = job_id
 
         # Retrieve the saved job to display results
-        from memory import get_job
-
-        job = get_job(job_id, str(db_path))
+        #job = get_job(job_id, str(db_path))
 
         # Load back from DB to display results
-        job = memory.get_job(job_id, db_path)
+        job = get_job(job_id, db_path)
         analysis = json.loads(job["gap_analysis"]) if job["gap_analysis"] else {}
 
         col1, col2 = st.columns(2)

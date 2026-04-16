@@ -81,61 +81,86 @@ if st.button("Analyse Job"):
 
         job = get_job(job_id, str(db_path))
 
-        if job:
-            # Parse analyses
-            gap_analysis = {}
-            if job.get("gap_analysis"):
-                try:
-                    gap_analysis = json.loads(job["gap_analysis"])
-                except (json.JSONDecodeError, TypeError):
-                    pass
+        # Load back from DB to display results
+        job = memory.get_job(job_id, db_path)
+        analysis = json.loads(job["gap_analysis"]) if job["gap_analysis"] else {}
 
-            # Display results in two columns
-            col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Strengths")
+            for s in analysis.get("strengths", []):
+                st.markdown(f"- {s}")
+            st.subheader("Gaps")
+            for g in analysis.get("gaps", []):
+                st.markdown(f"- {g}")
+        with col2:
+            st.subheader("Similar Companies")
+            for c in analysis.get("similar_companies", []):
+                st.markdown(f"- {c}")
+            st.subheader("Similar Roles")
+            for r in analysis.get("similar_roles", []):
+                st.markdown(f"- {r}")
 
-            with col1:
-                st.subheader("Strengths")
-                strengths = gap_analysis.get("strengths", [])
-                if strengths:
-                    for strength in strengths:
-                        st.write(f"• {strength}")
-                else:
-                    st.write("No strengths identified")
+        with st.expander("Tailored Resume"):
+            st.text(analysis.get("tailored_resume", ""))
 
-                st.subheader("Gaps")
-                gaps = gap_analysis.get("gaps", [])
-                if gaps:
-                    for gap in gaps:
-                        st.write(f"• {gap}")
-                else:
-                    st.write("No gaps identified")
+        st.success(f"Job saved — ID: {job_id}")
 
-            with col2:
-                st.subheader("Similar Companies")
-                similar_companies = gap_analysis.get("similar_companies", [])
-                if similar_companies:
-                    for comp in similar_companies:
-                        st.write(f"• {comp}")
-                else:
-                    st.write("No similar companies identified")
-
-                st.subheader("Similar Roles")
-                similar_roles = gap_analysis.get("similar_roles", [])
-                if similar_roles:
-                    for role in similar_roles:
-                        st.write(f"• {role}")
-                else:
-                    st.write("No similar roles identified")
-
-            # Tailored resume
-            with st.expander("Tailored Resume"):
-                tailored = job.get("tailored_resume", "")
-                if tailored:
-                    st.text(tailored)
-                else:
-                    st.write("No tailored resume generated")
-
-            st.success(f"✓ Job saved — ID: {job_id}")
+        #if job:
+        #    # Parse analyses
+        #    gap_analysis = {}
+        #    if job.get("gap_analysis"):
+        #        try:
+        #            gap_analysis = json.loads(job["gap_analysis"])
+        #        except (json.JSONDecodeError, TypeError):
+        #            pass
+#
+        #    # Display results in two columns
+        #    col1, col2 = st.columns(2)
+#
+        #    with col1:
+        #        st.subheader("Strengths")
+        #        strengths = gap_analysis.get("strengths", [])
+        #        if strengths:
+        #            for strength in strengths:
+        #                st.write(f"• {strength}")
+        #        else:
+        #            st.write("No strengths identified")
+#
+        #        st.subheader("Gaps")
+        #        gaps = gap_analysis.get("gaps", [])
+        #        if gaps:
+        #            for gap in gaps:
+        #                st.write(f"• {gap}")
+        #        else:
+        #            st.write("No gaps identified")
+#
+        #    with col2:
+        #        st.subheader("Similar Companies")
+        #        similar_companies = gap_analysis.get("similar_companies", [])
+        #        if similar_companies:
+        #            for comp in similar_companies:
+        #                st.write(f"• {comp}")
+        #        else:
+        #            st.write("No similar companies identified")
+#
+        #        st.subheader("Similar Roles")
+        #        similar_roles = gap_analysis.get("similar_roles", [])
+        #        if similar_roles:
+        #            for role in similar_roles:
+        #                st.write(f"• {role}")
+        #        else:
+        #            st.write("No similar roles identified")
+#
+        #    # Tailored resume
+        #    with st.expander("Tailored Resume"):
+        #        tailored = job.get("tailored_resume", "")
+        #        if tailored:
+        #            st.text(tailored)
+        #        else:
+        #            st.write("No tailored resume generated")
+#
+        #    st.success(f"✓ Job saved — ID: {job_id}")
 
     except Exception as e:
         st.error(f"Error analysing job: {e}")

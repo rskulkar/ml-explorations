@@ -1,0 +1,402 @@
+[
+  {
+    "id": 1,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a multi-agent pipeline for content moderation where Agent A classifies content type, Agent B performs safety analysis, and Agent C generates moderation decisions. How should you architect the orchestration layer to handle agent failures and maintain system reliability?",
+    "options": [
+      "Implement a centralized orchestrator with circuit breakers for each agent, exponential backoff on retries, and fallback workflows that can complete moderation with reduced agent participation.",
+      "Chain the agents sequentially with direct API calls between them, implementing retry logic in each agent to handle downstream failures and maintaining shared state in a database.",
+      "Use a pub-sub messaging system where each agent subscribes to the previous agent's output topic, with dead letter queues for failed messages and manual intervention processes.",
+      "Deploy agents as microservices with load balancers and let each agent poll a shared work queue, implementing timeouts and basic retry mechanisms without coordination."
+    ],
+    "answer": 0,
+    "explanation": "The centralized orchestrator approach provides proper failure isolation through circuit breakers, prevents cascading failures with exponential backoff, and maintains system availability through fallback workflows. This architecture ensures the pipeline can gracefully degrade while maintaining essential moderation capabilities.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Direct chaining creates tight coupling and cascading failure risks where one agent failure brings down the entire pipeline."
+  },
+  {
+    "id": 2,
+    "domain": 2,
+    "scenario": "Enterprise Knowledge Base",
+    "question": "You're building an enterprise knowledge base system where Claude needs to access multiple data sources including SharePoint, Confluence, and internal databases. What's the optimal MCP tool design strategy for this multi-source search capability?",
+    "options": [
+      "Create separate MCP tools for each data source with consistent return schemas, implementing query routing logic in Claude prompts to determine which sources to search based on user intent.",
+      "Build a single unified MCP tool that accepts a raw search query object containing source preferences, query text, and filter parameters, then handles all routing and aggregation internally.",
+      "Design source-specific MCP tools with different parameter schemas optimized for each system, and create a meta-tool that orchestrates multi-source searches through parallel tool calls.",
+      "Implement individual MCP tools for each source with standardized parameters, then use Claude's native tool calling to parallelize searches and synthesize results from multiple sources."
+    ],
+    "answer": 3,
+    "explanation": "Individual standardized MCP tools with parallel calling leverages Claude's native tool orchestration capabilities while maintaining clear separation of concerns and enabling optimal concurrent execution. This approach provides both modularity and performance without overcomplicating the tool interface.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Using a raw object parameter creates a non-idempotent tool that's difficult for Claude to reason about and increases prompt injection surface area."
+  },
+  {
+    "id": 3,
+    "domain": 3,
+    "scenario": "Code Review CI/CD",
+    "question": "You're configuring Claude to perform automated code reviews in a CI/CD pipeline where it analyzes pull requests for security vulnerabilities, code quality, and adherence to team standards. How should you structure the Claude workflow configuration to ensure consistent, reliable reviews?",
+    "options": [
+      "Configure a single comprehensive prompt that includes all review criteria, code context, and examples, with the entire pull request diff passed as one large context block for thorough analysis.",
+      "Design a multi-stage workflow with separate Claude instances for security, quality, and standards review, each with specialized prompts and focused context, then aggregate results through a final synthesis step.",
+      "Create a streaming workflow that processes files incrementally, maintaining conversation history across files to build context, and generates a cumulative review document as it progresses through the changeset.",
+      "Set up a template-based system with dynamic prompt generation based on file types and change patterns, using minimal context per request and relying on Claude's general knowledge for most review criteria."
+    ],
+    "answer": 1,
+    "explanation": "The multi-stage workflow with specialized Claude instances provides focused analysis while preventing context saturation, enables parallel processing for faster reviews, and allows fine-tuning of each review aspect independently. The synthesis step ensures coherent final output while maintaining the benefits of specialized review stages.",
+    "antipattern_index": 0,
+    "antipattern_reason": "Passing entire pull request diffs as one large context block leads to context saturation and reduces Claude's ability to focus on specific review criteria."
+  },
+  {
+    "id": 4,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a multi-agent content moderation pipeline where Claude agents specialize in text analysis, image context understanding, and policy enforcement. How should you architect the orchestration layer to ensure reliable agent coordination and graceful degradation?",
+    "options": [
+      "Implement a centralized orchestrator with circuit breakers for each agent, using async message queues with dead letter handling and exponential backoff for failed agent communications.",
+      "Create a peer-to-peer mesh where agents directly communicate through shared database state, with each agent polling for work items and updating status flags in real-time.",
+      "Use a synchronous chain where each agent waits for the previous one to complete, implementing simple retry logic with fixed delays and direct HTTP calls between agents.",
+      "Deploy agents as independent microservices that communicate through event streaming, with each agent subscribing to all events and filtering based on internal business logic."
+    ],
+    "answer": 0,
+    "explanation": "A centralized orchestrator with circuit breakers prevents cascading failures and provides controlled degradation, while async queues with dead letter handling ensure reliable message delivery and proper error recovery in multi-agent systems.",
+    "antipattern_index": 2,
+    "antipattern_reason": "Synchronous chaining creates brittle dependencies where one agent failure blocks the entire pipeline, and fixed delay retries can cause unbounded retry storms."
+  },
+  {
+    "id": 5,
+    "domain": 4,
+    "scenario": "Enterprise Knowledge Base",
+    "question": "Your enterprise knowledge base system needs Claude to extract structured metadata from unstructured documents and ensure consistent schema compliance across thousands of document types. What prompt engineering approach best balances accuracy and reliability?",
+    "options": [
+      "Use dynamic few-shot examples selected based on document similarity scores, with schema validation performed entirely within Claude's reasoning process and fallback to generic extraction patterns.",
+      "Implement a two-stage approach with schema-constrained JSON output using Claude's structured generation, followed by separate validation logic that enforces business rules and data consistency.",
+      "Create document-type-specific prompts with hardcoded examples for each category, using Claude to generate free-form descriptions that are parsed by downstream rule-based systems.",
+      "Design a single comprehensive prompt with all possible schema fields and examples, allowing Claude to dynamically choose the appropriate extraction strategy based on document content analysis."
+    ],
+    "answer": 1,
+    "explanation": "The two-stage approach leverages Claude's structured generation capabilities for consistent output format while maintaining separation of concerns between extraction and business rule validation. This architecture ensures schema compliance and allows independent evolution of validation logic.",
+    "antipattern_index": 3,
+    "antipattern_reason": "A comprehensive prompt with all schema fields leads to context bloat and reduces Claude's ability to focus on relevant extraction patterns for specific document types."
+  },
+  {
+    "id": 6,
+    "domain": 5,
+    "scenario": "Developer Productivity Tool",
+    "question": "You're building a developer productivity tool where Claude analyzes large codebases to suggest refactoring opportunities. The system needs to maintain context across multiple analysis sessions while handling repositories with millions of lines of code. How should you design the context management strategy?",
+    "options": [
+      "Implement hierarchical context chunking with smart retrieval, maintaining session state in external storage and dynamically loading relevant code segments based on analysis focus areas.",
+      "Load the entire codebase into Claude's context window using aggressive compression techniques, maintaining a single long-running conversation thread for all analysis requests.",
+      "Create separate Claude instances for each code module with no shared context, aggregating results through a coordination service that merges individual analysis outputs.",
+      "Use sliding window context management where each analysis request includes the previous N lines of code, with overlap strategies to maintain continuity across analysis boundaries."
+    ],
+    "answer": 0,
+    "explanation": "Hierarchical context chunking with smart retrieval prevents context saturation while maintaining relevant contextual information through external session state. This approach scales to large codebases by loading only necessary code segments based on current analysis needs.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Loading entire codebases into context causes context saturation and will exceed Claude's context limits, making the system unreliable for large repositories."
+  },
+  {
+    "id": 7,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a multi-agent pipeline for enterprise document processing where Claude agents handle extraction, validation, and routing tasks. Each agent needs to coordinate with others while maintaining clear boundaries and error recovery. What is the most appropriate orchestration pattern?",
+    "options": [
+      "Implement a centralized coordinator that manages agent state transitions through explicit handoffs, with each agent publishing completion events to a message queue for the next agent to consume.",
+      "Create a shared database where all agents continuously poll for work items, using database locks to prevent conflicts and allowing any agent to pick up any task type based on availability.",
+      "Chain agents directly together with synchronous API calls, where each agent immediately invokes the next agent in sequence and waits for the complete pipeline to finish before returning results.",
+      "Use a publish-subscribe pattern where agents broadcast their outputs to all other agents, letting each agent decide whether to process the message based on its internal logic and current workload."
+    ],
+    "answer": 0,
+    "explanation": "A centralized coordinator with explicit handoffs and event-driven communication provides clear orchestration boundaries while enabling proper error recovery and state management. This pattern maintains agent autonomy while ensuring coordinated execution flow.",
+    "antipattern_index": 2,
+    "antipattern_reason": "Synchronous chaining creates tight coupling and eliminates the ability to implement circuit breakers or handle partial failures gracefully."
+  },
+  {
+    "id": 8,
+    "domain": 2,
+    "scenario": "Customer Support Agent",
+    "question": "You're building a customer support agent that needs to access customer order history, update ticket status, and escalate to human agents. The system handles thousands of concurrent conversations with varying data access patterns. How should you design the tool integration architecture?",
+    "options": [
+      "Create individual MCP tools for each database table operation, allowing Claude to compose complex queries by calling multiple granular tools in sequence based on the conversation context.",
+      "Build composite MCP tools that combine related operations (like get_customer_profile including orders, tickets, and preferences) with intelligent caching and connection pooling for high-throughput scenarios.",
+      "Implement a single universal database_query tool that accepts raw SQL parameters, giving Claude maximum flexibility to construct any query needed for customer support scenarios.",
+      "Design stateful MCP tools that maintain conversation context between calls, automatically remembering customer information and previous queries to reduce redundant data fetching."
+    ],
+    "answer": 1,
+    "explanation": "Composite MCP tools with intelligent caching provide the right abstraction level for customer support scenarios, reducing API calls while maintaining semantic clarity. Connection pooling ensures the system can handle high concurrency without resource exhaustion.",
+    "antipattern_index": 2,
+    "antipattern_reason": "A raw SQL parameter tool creates a massive prompt injection surface and violates the principle of providing semantic, bounded operations to Claude."
+  },
+  {
+    "id": 9,
+    "domain": 3,
+    "scenario": "Code Review CI/CD",
+    "question": "You're implementing a Claude-powered code review system that analyzes pull requests, suggests improvements, and generates security reports. The system needs to handle varying code sizes and maintain consistent quality across different programming languages. What workflow configuration approach ensures reliable operation?",
+    "options": [
+      "Configure dynamic context windows that automatically expand based on file size, using streaming responses to handle large codebases while maintaining full file context for accurate analysis.",
+      "Implement a chunking strategy with overlapping context windows and structured prompts that maintain code relationship awareness, combined with result synthesis for comprehensive reviews.",
+      "Set up language-specific prompt templates with fixed context limits, preprocessing code to remove comments and whitespace to maximize the amount of actual code that fits in each request.",
+      "Use a single comprehensive prompt that includes all files simultaneously, relying on Claude's context management to prioritize the most important sections automatically during analysis."
+    ],
+    "answer": 1,
+    "explanation": "A chunking strategy with overlapping windows and relationship awareness prevents context saturation while ensuring comprehensive analysis. Result synthesis allows the system to provide cohesive feedback across large codebases without losing important cross-file dependencies.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Including all files simultaneously leads to context bloat and reduces Claude's ability to provide detailed analysis of individual components."
+  },
+  {
+    "id": 10,
+    "domain": 4,
+    "scenario": "Data Extraction",
+    "question": "You're building a data extraction system that processes various document formats (PDFs, emails, contracts) and needs to return structured data in different schemas depending on document type. How should you architect the prompt engineering and output validation?",
+    "options": [
+      "Create a single mega-prompt that handles all document types with conditional logic, using a union schema that includes all possible fields across document types.",
+      "Design document-type-specific prompts with tailored schemas, use structured output validation with strict typing, and implement schema versioning for backwards compatibility.",
+      "Use a two-stage approach where the first prompt classifies document type and extracts raw text, then pass everything to a second prompt that formats the output.",
+      "Implement dynamic prompt generation that builds schemas on-the-fly based on document content analysis, with flexible validation that adapts to detected patterns."
+    ],
+    "answer": 1,
+    "explanation": "Document-type-specific prompts with tailored schemas provide the best balance of accuracy and maintainability, while structured output validation ensures data quality and schema versioning enables system evolution.",
+    "antipattern_index": 0,
+    "antipattern_reason": "A single mega-prompt leads to context bloat and reduces extraction accuracy across different document types."
+  },
+  {
+    "id": 11,
+    "domain": 5,
+    "scenario": "Enterprise Knowledge Base",
+    "question": "Your enterprise knowledge base system serves multiple departments with varying context windows (legal docs, technical specs, HR policies). Users often ask complex questions requiring synthesis across multiple documents. How do you manage context and ensure reliable responses?",
+    "options": [
+      "Implement context chunking with semantic search to retrieve relevant passages, use context window monitoring to prevent saturation, and add confidence scoring with graceful degradation for incomplete information.",
+      "Load all relevant documents into context for each query to ensure completeness, implement retry logic for context overflow errors, and cache full document sets per department.",
+      "Use a sliding context window that automatically drops older information when limits are approached, prioritizing recent documents and user query context over historical information.",
+      "Implement parallel context processing where multiple Claude instances handle different document sets, then merge results using a coordinator prompt that synthesizes all outputs."
+    ],
+    "answer": 0,
+    "explanation": "Context chunking with semantic search optimizes context usage while monitoring prevents saturation, and confidence scoring enables reliable operation when information is incomplete.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Loading all documents leads to immediate context saturation and makes the system unreliable for complex queries."
+  },
+  {
+    "id": 12,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a content moderation pipeline where multiple AI agents handle different aspects: toxicity detection, spam classification, and policy compliance checking. Each agent needs to make decisions that affect downstream processing. How should you orchestrate the agent interactions?",
+    "options": [
+      "Implement a sequential pipeline where each agent passes results to the next, with state management handled through a central coordinator that tracks decisions and manages rollbacks.",
+      "Use a hub-and-spoke model where all agents process content simultaneously and send results to a decision aggregator that applies weighted scoring and conflict resolution rules.",
+      "Create a hierarchical system where a supervisor agent delegates tasks to specialist agents, collects their outputs, and makes final moderation decisions with full context visibility.",
+      "Design independent agents that each make autonomous decisions and write to a shared database, with downstream conflict resolution handled by business logic outside the AI system."
+    ],
+    "answer": 2,
+    "explanation": "A hierarchical supervisor pattern provides clear orchestration control and context visibility while enabling specialized agent expertise and centralized decision-making authority.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Independent agents writing to shared state creates non-idempotent operations and race conditions without proper coordination mechanisms."
+  },
+  {
+    "id": 13,
+    "domain": 2,
+    "scenario": "Developer Productivity Tool",
+    "question": "You're building a developer productivity tool that integrates with multiple IDEs and version control systems. The tool needs to provide Claude with real-time access to code repositories, documentation, and project configurations. Which MCP integration approach best supports this multi-tool environment?",
+    "options": [
+      "Create a single monolithic MCP server that handles all IDE integrations, Git operations, and documentation access through one unified interface with shared connection pooling.",
+      "Implement separate MCP servers for each tool type (IDE server, Git server, docs server) with Claude managing connections and orchestrating cross-server operations through a coordinator pattern.",
+      "Build MCP servers as lightweight, stateless adapters for each external system, allowing Claude to compose operations across multiple servers while maintaining clear separation of concerns.",
+      "Design a hierarchical MCP architecture where a master server proxies requests to specialized sub-servers, caching responses and maintaining session state across all integrations."
+    ],
+    "answer": 2,
+    "explanation": "Lightweight, stateless MCP servers with clear separation of concerns provide the best modularity and reliability for multi-tool environments. This approach allows independent scaling, easier maintenance, and reduces the blast radius when individual integrations fail.",
+    "antipattern_index": 0,
+    "antipattern_reason": "A monolithic MCP server creates tight coupling and becomes a single point of failure across all developer tools."
+  },
+  {
+    "id": 14,
+    "domain": 3,
+    "scenario": "Content Moderation",
+    "question": "Your content moderation system processes user-generated content from multiple social platforms and needs to handle varying content types, languages, and moderation policies. You're implementing a Claude-based workflow that must maintain consistent decisions while adapting to platform-specific rules. How should you structure the Claude configuration?",
+    "options": [
+      "Use a single Claude instance with dynamic system messages that inject platform-specific rules and content type handlers based on incoming request metadata.",
+      "Deploy separate Claude instances for each platform-content type combination, with pre-configured system messages and validation rules specific to each use case.",
+      "Create a master Claude coordinator that routes content to specialized Claude workers, each configured for specific moderation domains with standardized output schemas.",
+      "Implement a shared Claude instance pool with runtime configuration injection, where moderation rules and content handlers are loaded from a database per request."
+    ],
+    "answer": 2,
+    "explanation": "A master coordinator with specialized workers provides the optimal balance of consistency and specialization, allowing domain-specific expertise while maintaining centralized orchestration. This architecture supports complex routing logic and independent scaling of different moderation types.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Runtime configuration injection from databases creates context bloat and introduces potential prompt injection surfaces through dynamic rule loading."
+  },
+  {
+    "id": 15,
+    "domain": 4,
+    "scenario": "Enterprise Knowledge Base",
+    "question": "You're developing an enterprise knowledge base system where Claude must extract structured information from diverse document types (contracts, technical specs, meeting notes) and generate consistent metadata for search indexing. The system needs to handle documents with varying schemas while maintaining data quality. What prompt engineering approach best ensures reliable structured output?",
+    "options": [
+      "Use a single comprehensive prompt with conditional logic that detects document type and applies appropriate extraction rules, outputting a flexible JSON schema that adapts to content.",
+      "Implement document type classification followed by specialized extraction prompts, each with strict JSON schemas and validation rules tailored to specific document categories.",
+      "Create a multi-step pipeline where Claude first analyzes document structure, then applies generic extraction templates with dynamic field mapping based on detected patterns.",
+      "Design a universal extraction prompt with extensive examples covering all document types, using a large unified schema that includes optional fields for every possible data point."
+    ],
+    "answer": 1,
+    "explanation": "Document type classification followed by specialized extraction ensures the highest data quality and consistency by using domain-specific schemas and validation rules. This approach minimizes hallucination and provides predictable output structures for downstream processing.",
+    "antipattern_index": 0,
+    "antipattern_reason": "Flexible JSON schemas that adapt to content create unpredictable output structures that complicate downstream processing and validation."
+  },
+  {
+    "id": 16,
+    "domain": 1,
+    "scenario": "Customer Support Agent",
+    "question": "You're designing a customer support agent that needs to handle complex multi-turn conversations while maintaining context across sessions and escalating to human agents when needed. What is the most appropriate agentic architecture approach?",
+    "options": [
+      "Implement a single Claude instance with conversation memory stored in system prompts, using a simple rule-based escalation trigger when confidence scores drop below a threshold.",
+      "Deploy a multi-agent system with specialized agents for different support domains, a central orchestrator managing conversation state, and circuit breakers preventing infinite loops between agents.",
+      "Create a monolithic agent that stores all conversation history in the context window and uses function calling to directly modify the customer database without validation layers.",
+      "Design a pipeline where each customer message triggers a new Claude instance with the full conversation history, using synchronous calls to multiple external APIs for real-time data enrichment."
+    ],
+    "answer": 1,
+    "explanation": "The multi-agent approach with specialized agents, central orchestration, and circuit breakers provides proper separation of concerns while preventing common failure modes. This architecture scales better and maintains conversation coherence through proper state management.",
+    "antipattern_index": 2,
+    "antipattern_reason": "Storing all conversation history in context leads to context saturation and creates security risks by allowing direct database modifications without proper validation layers."
+  },
+  {
+    "id": 17,
+    "domain": 2,
+    "scenario": "E-commerce Platform",
+    "question": "Your e-commerce platform needs Claude to process customer orders, update inventory, and send notifications through various channels. How should you design the tool integration using MCP?",
+    "options": [
+      "Create separate MCP servers for inventory management, order processing, and notifications, each with idempotent operations and proper error handling, connected through a unified tool registry.",
+      "Build a single MCP server that combines all e-commerce operations into one tool with a large JSON parameter containing all possible order and inventory data fields.",
+      "Implement direct API calls from Claude to each service without MCP abstraction, using retry logic with exponential backoff for all operations regardless of their nature.",
+      "Design MCP tools that accept raw database queries as parameters, allowing Claude to directly construct SQL statements for maximum flexibility in data operations."
+    ],
+    "answer": 0,
+    "explanation": "Separate MCP servers with idempotent operations provide proper separation of concerns and fault isolation. The unified tool registry allows Claude to discover and use tools systematically while maintaining clean boundaries between different business domains.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Accepting raw database queries as tool parameters creates a massive prompt injection surface and removes essential data validation safeguards."
+  },
+  {
+    "id": 18,
+    "domain": 3,
+    "scenario": "Code Review CI/CD",
+    "question": "You're implementing Claude in a CI/CD pipeline to perform automated code reviews for pull requests in a large enterprise development environment. What configuration approach ensures reliable and secure operation?",
+    "options": [
+      "Configure Claude with a broad system prompt containing all coding standards, use a single workflow that processes entire codebases at once, and implement unlimited retries for failed reviews.",
+      "Set up modular workflows with specific prompts for different code review aspects, implement proper context windowing for large files, and use circuit breakers to handle API failures gracefully.",
+      "Create a workflow that concatenates all changed files into one massive prompt, stores sensitive configuration data in the system message, and uses synchronous processing for real-time feedback.",
+      "Design workflows that inject raw git diff outputs without sanitization, use dynamic prompt construction from user input, and implement aggressive caching that persists across different repositories."
+    ],
+    "answer": 1,
+    "explanation": "Modular workflows with context windowing and circuit breakers provide scalable, reliable code review capabilities. This approach handles large codebases efficiently while maintaining review quality and system stability.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Dynamic prompt construction from user input creates a significant prompt injection surface that could compromise the code review process and expose sensitive information."
+  },
+  {
+    "id": 19,
+    "domain": 4,
+    "scenario": "Data Extraction",
+    "question": "You're building a data extraction system that processes financial documents and outputs structured JSON. The extracted data must conform to a strict schema for regulatory compliance, but document formats vary significantly across different financial institutions.",
+    "options": [
+      "Use function calling with a comprehensive schema definition that includes all possible fields, and implement fallback logic to handle missing or malformed data gracefully.",
+      "Chain multiple specialized prompts where each extracts a specific data category, then merge results using a final validation prompt that ensures schema compliance.",
+      "Implement a single comprehensive prompt with detailed examples and use regex post-processing to enforce the JSON schema structure regardless of Claude's output format.",
+      "Use system prompts to define the schema once, then rely on few-shot examples in user messages to guide extraction behavior for each document type."
+    ],
+    "answer": 0,
+    "explanation": "Function calling provides the most reliable way to enforce structured output with schema validation, while the comprehensive schema with fallback logic handles the document format variability robustly. This approach leverages Claude's structured output capabilities rather than trying to enforce structure through post-processing or prompt engineering alone.",
+    "antipattern_index": 2,
+    "antipattern_reason": "Using regex post-processing to enforce JSON structure creates a brittle system that may corrupt valid data and doesn't leverage Claude's native structured output capabilities."
+  },
+  {
+    "id": 20,
+    "domain": 5,
+    "scenario": "Enterprise Knowledge Base",
+    "question": "Your enterprise knowledge base system needs to handle conversations that can span multiple topics and reference various internal documents. Users often ask follow-up questions that require context from earlier in the conversation, but the system sometimes fails when conversations become very long.",
+    "options": [
+      "Implement sliding window context management that preserves the most recent exchanges while maintaining a summary of earlier conversation topics and key decisions.",
+      "Store the entire conversation history in a vector database and retrieve relevant segments based on semantic similarity to the current question.",
+      "Use a fixed context window and simply truncate older messages when the limit is reached, ensuring the system always has the most recent context available.",
+      "Implement conversation branching where each new topic starts a fresh context, but maintain cross-references to related earlier discussions through metadata."
+    ],
+    "answer": 0,
+    "explanation": "Sliding window context management with summarization prevents context saturation while preserving essential conversation continuity. This approach maintains recent detailed context while compressing older information into summaries that remain accessible for reference.",
+    "antipattern_index": 2,
+    "antipattern_reason": "Fixed truncation without preservation leads to context saturation and loss of important conversation history that may be needed for follow-up questions."
+  },
+  {
+    "id": 21,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a content moderation pipeline where multiple AI agents analyze user-generated content for different violation types (hate speech, spam, inappropriate images). Each agent needs to make independent assessments, but the final decision requires considering all agent outputs with different confidence thresholds.",
+    "options": [
+      "Implement a coordinator agent that receives all individual agent assessments and makes final moderation decisions based on weighted confidence scores and business rules.",
+      "Create a sequential pipeline where each agent processes content in order, with early termination if any agent detects a clear violation above the threshold.",
+      "Use a voting mechanism where agents process content simultaneously and the majority decision determines the outcome, with ties resolved by the highest confidence score.",
+      "Design agents to communicate directly with each other during processing, sharing intermediate findings to improve overall accuracy before reaching consensus."
+    ],
+    "answer": 0,
+    "explanation": "A coordinator agent provides centralized decision logic that can properly weight different violation types and apply business rules consistently. This architecture maintains agent independence while enabling sophisticated decision-making that considers the specific nature of different violations.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Direct inter-agent communication creates a non-idempotent system where agent outputs depend on processing order and timing, making the pipeline unpredictable and difficult to debug."
+  },
+  {
+    "id": 22,
+    "domain": 2,
+    "scenario": "Customer Support Agent",
+    "question": "You're building a customer support agent that needs to access order history, update ticket status, and send notifications. Which tool design approach provides the best balance of safety and functionality?",
+    "options": [
+      "Create separate tools for read operations (get_order_history) and write operations (update_ticket, send_notification) with explicit confirmation steps for state changes.",
+      "Build a single unified tool called customer_service_handler that accepts a raw JSON object parameter containing all customer data and operation types to minimize tool switching overhead.",
+      "Design tools that automatically retry failed operations indefinitely with exponential backoff to ensure eventual consistency across all customer service systems.",
+      "Implement tools that directly expose database cursors and connection objects to Claude for maximum flexibility in handling complex customer queries."
+    ],
+    "answer": 0,
+    "explanation": "Separating read and write operations with confirmation steps follows the principle of least privilege and prevents accidental state changes. This design provides clear boundaries and makes the system more predictable and debuggable.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Using a raw object parameter creates an unbounded input surface that can lead to unpredictable behavior and makes tool validation nearly impossible."
+  },
+  {
+    "id": 23,
+    "domain": 4,
+    "scenario": "E-commerce Platform",
+    "question": "Your e-commerce platform needs Claude to generate product recommendations with specific pricing tiers and inventory constraints. How should you structure the prompt and output to ensure consistent, actionable results?",
+    "options": [
+      "Use a conversational prompt asking Claude to 'recommend some products' and parse the natural language response with regex patterns to extract product IDs and prices.",
+      "Include all product catalog data directly in the system prompt and ask Claude to select items, then manually validate the output against current inventory levels.",
+      "Design a structured prompt with clear constraints (budget range, category filters) and specify a JSON schema requiring product_id, price, and availability_status fields for each recommendation.",
+      "Implement a multi-turn conversation where Claude asks follow-up questions about user preferences before providing unstructured recommendations in markdown format."
+    ],
+    "answer": 2,
+    "explanation": "Structured prompts with explicit constraints and JSON schema output ensure deterministic, parseable results that can be directly integrated into e-commerce workflows. This approach minimizes ambiguity and enables reliable downstream processing.",
+    "antipattern_index": 1,
+    "antipattern_reason": "Including the entire product catalog in the system prompt leads to context bloat and makes the system unscalable as inventory grows."
+  },
+  {
+    "id": 24,
+    "domain": 3,
+    "scenario": "Code Review CI/CD",
+    "question": "You're implementing Claude in a CI/CD pipeline to review pull requests for security issues and code quality. Which configuration approach ensures reliable operation under varying workloads?",
+    "options": [
+      "Configure the system to process all pull request files simultaneously in a single Claude call to minimize API overhead and maintain consistent review standards across the codebase.",
+      "Set up file-by-file processing with circuit breakers, timeout controls, and graceful degradation that skips non-critical files when the system is under heavy load.",
+      "Implement a queue-based system that accumulates all pending reviews and processes them in large batches every hour to optimize for throughput over latency.",
+      "Configure automatic retry logic that continues attempting to process failed reviews indefinitely until successful, ensuring no security issues are missed."
+    ],
+    "answer": 1,
+    "explanation": "Circuit breakers and timeout controls prevent cascade failures in CI/CD environments where reliability is critical. File-by-file processing with graceful degradation ensures the system remains responsive and doesn't block development workflows during peak usage.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Unbounded retry logic can cause resource exhaustion and block the entire CI/CD pipeline when Claude encounters persistent errors or rate limits."
+  },
+  {
+    "id": 25,
+    "domain": 1,
+    "scenario": "Multi-Agent Pipeline",
+    "question": "You're designing a multi-agent system where Claude agents handle document processing, data validation, and report generation in sequence. How should you architect the inter-agent communication and state management?",
+    "options": [
+      "Implement a centralized orchestrator with explicit state transitions and structured message passing between agents, using JSON schemas for validation.",
+      "Allow agents to directly call each other's APIs with shared memory access, enabling real-time collaboration and immediate state synchronization.",
+      "Use a pub/sub messaging system where agents broadcast all their outputs to all other agents, letting each agent filter relevant information.",
+      "Chain agents together with direct function calls, passing the full conversation history and accumulated context through each agent in the pipeline."
+    ],
+    "answer": 0,
+    "explanation": "A centralized orchestrator with explicit state transitions provides clear control flow, proper error handling, and maintainable agent coordination while preventing context bloat and ensuring reliable inter-agent communication.",
+    "antipattern_index": 3,
+    "antipattern_reason": "Passing full conversation history through each agent creates context bloat and can lead to context saturation as the pipeline processes more documents."
+  }
+]

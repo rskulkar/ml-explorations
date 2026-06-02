@@ -3,47 +3,58 @@
 import sys
 import os
 import json
+import sqlite3
 from pathlib import Path
 
 import streamlit as st
 import pandas as pd
 
-# Add src/ to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from memory import init_db, list_jobs, list_interviewers, upsert_job, get_all_jobs_with_analyses
+from memory import init_db, list_interviewers, upsert_job
 
 st.set_page_config(page_title="Dashboard", layout="wide")
 
-# Initialize database
-db_path = Path(__file__).parent.parent / "data" / "memory" / "copilot.db"
-init_db(str(db_path))
+db_path = str(Path(__file__).parent.parent / "data" / "memory" / "copilot.db")
+init_db(db_path)
+
+STATUSES = ["active", "offer", "rejected", "withdrawn"]
+
+
+def safe_json(value):
+    if not value:
+        return {}
+    if isinstance(value, (dict, list)):
+        return value
+    try:
+        return json.loads(value)
+    except Exception:
+        return {}
+
+
+def compute_fit_score(gap_analysis: dict) -> float:
+    """fit = strengths / (strengths + gaps). Returns 0.0 if no data."""
+    strengths = len(gap_analysis.get("strengths") or [])
+    gaps = len(gap_analysis.get("gaps") or [])
+    total = strengths + gaps
+    if total == 0:
+        return 0.0
+    return round(strengths / total * 100, 1)
+
+
+# Load all jobs directly
+conn = sqlite3.connect(db_path)
+conn.row_factory = sqlite3.Row
+cur = conn.cursor()
+cur.execute("SELECT * FROM jobs ORDER BY created_at DESC")
+jobs_all = [dict(row) for row in cur.fetchall()]
+conn.close()
 
 st.title("Dashboard")
 
-# Get all jobs
-jobs = list_jobs(status="active", db_path=str(db_path))
-jobs_all = []
-
-# Get all statuses
-try:
-    import sqlite3
-
-    conn = sqlite3.connect(str(db_path))
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM jobs ORDER BY created_at DESC")
-    rows = cursor.fetchall()
-    conn.close()
-
-    for row in rows:
-        jobs_all.append(dict(row))
-except Exception:
-    jobs_all = jobs
-
-# Show metrics
-analyzed_jobs = get_all_jobs_with_analyses(str(db_path))
-active_jobs = [j for j in jobs_all if j.get("status") == "active"]
+# ── Metrics ──────────────────────────────────────────────────────────────────
+active_jobs = [j for j in jobs_all if (j.get("status") or "active") == "active"]
+analysed_jobs = [j for j in jobs_all if j.get("gap_analysis")]
 
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -51,82 +62,97 @@ with col1:
 with col2:
     st.metric("Active Jobs", len(active_jobs))
 with col3:
-    st.metric("Jobs with Analysis", len(analyzed_jobs))
+    st.metric("Jobs with Analysis", len(analysed_jobs))
 
-# Show all jobs table
-st.subheader("All Jobs")
+st.divider()
+
+# ── Ranked jobs table ────────────────────────────────────────────────────────
+st.subheader("All Jobs — ranked by fit score")
+
 if jobs_all:
-    table_data = []
+    table_rows = []
     for job in jobs_all:
-        table_data.append({
-            "Company": job.get("company", ""),
-            "Title": job.get("title", ""),
-            "Status": job.get("status", "active"),
-            "Created": job.get("created_at", ""),
-            "Job ID": job.get("job_id", "")[:8] + "...",
+        analysis = safe_json(job.get("gap_analysis"))
+        fit = compute_fit_score(analysis)
+        table_rows.append({
+            "_fit": fit,
+            "_created": job.get("created_at") or "",
+            "Company": job.get("company") or "",
+            "Title": job.get("title") or "",
+            "Status": (job.get("status") or "active").capitalize(),
+            "Fit Score": f"{fit}%" if fit > 0 else "—",
+            "Strengths": len(analysis.get("strengths") or []),
+            "Gaps": len(analysis.get("gaps") or []),
+            "Created": (job.get("created_at") or "")[:10],
+            "_job_id": job.get("job_id"),
         })
-    st.dataframe(pd.DataFrame(table_data), use_container_width=True)
 
-# Expandable job details
-st.subheader("Job Details")
-for job in jobs_all:
-    with st.expander(f"{job['company']} — {job['title']}"):
+    # Sort: fit score descending, created_at ascending for ties
+    table_rows.sort(key=lambda r: (-r["_fit"], r["_created"]))
+
+    # Add rank
+    for i, row in enumerate(table_rows):
+        row["Rank"] = i + 1
+
+    df = pd.DataFrame(table_rows)[["Rank", "Company", "Title", "Status", "Fit Score", "Strengths", "Gaps", "Created"]]
+    st.dataframe(df, use_container_width=True, hide_index=True)
+else:
+    st.info("No jobs saved yet.")
+
+st.divider()
+
+# ── Job details ───────────────────────────────────────────────────────────────
+st.subheader("Job details")
+
+# Re-sort jobs_all by fit score for the expanders too
+jobs_ranked = sorted(
+    jobs_all,
+    key=lambda j: (
+        -compute_fit_score(safe_json(j.get("gap_analysis"))),
+        j.get("created_at") or ""
+    )
+)
+
+for i, job in enumerate(jobs_ranked):
+    analysis = safe_json(job.get("gap_analysis"))
+    fit = compute_fit_score(analysis)
+    status = (job.get("status") or "active")
+    if status not in STATUSES:
+        status = "active"
+    label = f"#{i+1}  {job.get('company','')} — {job.get('title','')}  |  {status.upper()}  |  Fit: {fit}%"
+
+    with st.expander(label, expanded=False):
         col1, col2 = st.columns(2)
 
         with col1:
-            # Show gap analysis summary if available
-            if job.get("gap_analysis"):
-                st.subheader("Gap Analysis Summary")
-                try:
-                    gap_analysis = json.loads(job["gap_analysis"])
-
-                    strengths = gap_analysis.get("strengths", [])
-                    if strengths:
-                        st.write("**Strengths:**")
-                        for s in strengths[:3]:
-                            st.write(f"• {s}")
-
-                    gaps = gap_analysis.get("gaps", [])
-                    if gaps:
-                        st.write("**Gaps:**")
-                        for g in gaps[:3]:
-                            st.write(f"• {g}")
-                except (json.JSONDecodeError, TypeError):
-                    st.write("Could not parse gap analysis")
+            if analysis:
+                st.markdown("**Strengths**")
+                for s in (analysis.get("strengths") or [])[:3]:
+                    st.markdown(f"- {s}")
+                st.markdown("**Gaps**")
+                for g in (analysis.get("gaps") or [])[:3]:
+                    st.markdown(f"- {g}")
+            else:
+                st.info("No analysis yet.")
 
         with col2:
-            # Show interviewers
-            interviewers = list_interviewers(job["job_id"], str(db_path))
-            st.subheader(f"Interviewers ({len(interviewers)})")
+            interviewers = list_interviewers(job["job_id"], db_path)
+            st.markdown(f"**Interviewers ({len(interviewers)})**")
             if interviewers:
                 for iv in interviewers:
-                    st.write(f"• {iv['name']} ({iv['role']})")
+                    st.write(f"- {iv['name']} ({iv.get('role','')})")
             else:
-                st.write("No interviewers added")
+                st.write("None added yet.")
 
-        # Status update
-        current_status = job.get("status", "active")
         new_status = st.selectbox(
-            "Update Status",
-            ["active", "offer", "rejected", "withdrawn"],
-            index=["active", "offer", "rejected", "withdrawn"].index(current_status),
-            key=f"status_{job['job_id']}",
+            "Status",
+            STATUSES,
+            index=STATUSES.index(status),
+            key=f"status_{job['job_id']}"
         )
-
-        if new_status != current_status:
-            # Update job status
-            updated_job = job.copy()
-            updated_job["status"] = new_status
-            upsert_job(updated_job, str(db_path))
+        if new_status != status:
+            updated = dict(job)
+            updated["status"] = new_status
+            upsert_job(updated, db_path)
             st.success(f"Status updated to {new_status}")
             st.rerun()
-
-st.markdown("---")
-st.markdown(
-    """
-    **Tips:**
-    - Use Add Job to fetch and analyze new opportunities
-    - Use Add Interviewer to prepare for specific interviews
-    - Use Compare Opportunities to rank all analyzed jobs
-    """
-)

@@ -183,7 +183,11 @@ def list_jobs(status: str = "active", db_path: Optional[str] = None) -> list[dic
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM jobs WHERE status = ? ORDER BY created_at DESC", (status,))
+    if status:
+        cursor.execute("SELECT * FROM jobs WHERE status = ? ORDER BY created_at DESC", (status,))
+    else:
+        cursor.execute("SELECT * FROM jobs ORDER BY created_at DESC")
+        
     rows = cursor.fetchall()
     conn.close()
 

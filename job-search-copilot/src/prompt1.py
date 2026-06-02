@@ -41,8 +41,8 @@ def run_prompt1(
 
         user_message = f"""Analyze this job application and return JSON with exactly these keys:
 - tailored_resume: full rewritten resume text optimized for this role
-- strengths: list of 3-6 bullet points where candidate strongly matches the JD
-- gaps: list of 3-6 bullet points where candidate falls short of JD requirements
+- strengths: list of bullet points where candidate strongly matches the JD. Only include genuine, specific matches — do not pad to hit a minimum count. Typically 2-5 items.
+- gaps: list of bullet points where candidate falls short of JD requirements. Only include real, specific gaps — do not fabricate gaps to balance strengths. Typically 1-4 items. If the candidate is a strong match, gaps may be fewer than strengths.
 - similar_companies: list of 5 company names similar to {company} worth targeting
 - similar_roles: list of 5 adjacent job titles worth applying for
 - live_openings_queries: list of 3 search query strings to find similar live openings

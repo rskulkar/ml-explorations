@@ -1,0 +1,78 @@
+{
+  "ranked_jobs": [
+    {
+      "job_id": 1,
+      "company": "MathCo",
+      "title": "Data Science Delivery Lead - Pharma",
+      "rank": 1,
+      "fit_score": 92,
+      "rationale": "Exceptional alignment across all critical dimensions: 10+ years healthcare analytics, 6+ years pharma, 8+ years delivery leadership directly exceed stated requirements. Proven track record rescuing stalled projects and managing complex AI/ML programs with teams mirrors core JD priorities. Minor gap in formal PM tooling is easily addressable and does not diminish strong delivery execution foundation."
+    },
+    {
+      "job_id": 4,
+      "company": "Axtria",
+      "title": "Principal Decision Science",
+      "rank": 2,
+      "fit_score": 88,
+      "rationale": "Strong technical and domain fit with 10+ years healthcare analytics and 3+ years pharma/life sciences experience directly matching JD requirements. Demonstrated expertise in patient analytics, RWD, and advanced statistical modeling (survival models, risk stratification) is precisely what Principal role demands. Primary gap is absence of low-code platform experience and limited evidence of business development leadership expected at Principal level."
+    },
+    {
+      "job_id": 2,
+      "company": "SG Analytics",
+      "title": "Associate Vice President Data Science",
+      "rank": 3,
+      "fit_score": 82,
+      "rationale": "20+ years progressive experience with proven cross-functional team leadership and advanced technical proficiency in Python, R, SQL, and AWS SageMaker align well with AVP expectations. Delivery and execution excellence across multiple organizations demonstrates capability. However, limited sales pipeline ownership and insider sales experience, combined with gaps in modern BI/visualization technologies (Tableau, Power BI, Looker), create friction with stated essential requirements."
+    },
+    {
+      "job_id": 5,
+      "company": "Intuituve.AI",
+      "title": "Delivery Lead",
+      "rank": 4,
+      "fit_score": 81,
+      "rationale": "Significantly exceeds foundational requirements with 20+ years data science, 10+ years healthcare AI/ML, and 3+ years end-to-end program delivery leadership. Track record of rescuing stalled programs and scaling OCM initiatives demonstrates delivery excellence. Gaps in hands-on MLOps, containerization, CI/CD pipeline engineering, and cloud infrastructure orchestration represent meaningful technical depth shortfalls for a delivery lead role responsible for engineering execution."
+    },
+    {
+      "job_id": 3,
+      "company": "Sigmoid",
+      "title": "Director Data Science",
+      "rank": 5,
+      "fit_score": 68,
+      "rationale": "Strong C-suite relationship management and senior stakeholder advisory skills with 20+ years experience and proven ability to translate complex problems into strategic solutions. However, critical misalignment exists: JD mandates hands-on experience in CPG, Retail, Manufacturing, or BFSI (at least 2 sectors), while background is exclusively healthcare/life sciences. Limited evidence of sustained line management and team scaling further undermines fit for Director role."
+    }
+  ],
+  "pattern_insights": [
+    {
+      "insight": "Healthcare/Pharma Domain Concentration: Your 10-20 year healthcare and life sciences background is a powerful differentiator for pharma-focused roles (MathCo, Axtria) but becomes a significant liability for roles requiring cross-industry experience (Sigmoid). Consider whether domain specialization or diversification aligns better with long-term career goals\u2014deep expertise commands premium valuations in specialized markets but may limit future optionality."
+    },
+    {
+      "insight": "Delivery Leadership Strength Across All Opportunities: Your consistent pattern of end-to-end program delivery, team leadership, and project rescue (1+ year stalled programs, $250M impact initiatives) is a compelling narrative across all roles. Emphasize quantified business impact metrics (timeline recovery %, scope delivered, team scaling) rather than technical depth in interviews, as this is your primary competitive advantage."
+    },
+    {
+      "insight": "MLOps and Modern Data Engineering Gap: Three of five opportunities (Intuituve.AI, SG Analytics, Axtria) explicitly flag gaps in containerization (Docker), orchestration tools (Airflow, Databricks), CI/CD pipelines, and low-code platforms (DataIKU, Alteryx). This is a consolidatable skill gap: 3-4 months of focused learning in one modern data stack could significantly elevate fit scores across multiple opportunities."
+    },
+    {
+      "insight": "Sales and Business Development Capability Underexplored: SG Analytics requires inside sales pipeline ownership; Axtria requires business development leadership at Principal level. Your resume emphasizes delivery execution over revenue generation and opportunity expansion. If client-facing or revenue-responsibility roles are career ambitions, explicit positioning of account growth examples (e.g., CitiusTech $80K\u2192$1M expansion at Axtria-level role) becomes critical differentiator."
+    },
+    {
+      "insight": "Leadership Depth Variation: Roles rank differently based on line management expectations. MathCo and Intuituve.AI prioritize delivery accountability with smaller team leadership (5+ person teams); Sigmoid and Axtria expect broader organizational scaling and strategic management. Your current experience aligns better with hands-on delivery leadership than enterprise-scale people management\u2014position accordingly and avoid overstating organizational scope."
+    }
+  ],
+  "recommended_next_steps": [
+    {
+      "action": "Prioritize MathCo and Axtria as primary targets (Rank 1-2) while simultaneously closing MLOps skill gap. Schedule 30-minute calls with hiring managers at each to confirm specific pain points (e.g., Does MathCo need immediate supply chain analytics capability, or is clinical/RWE focus non-negotiable?). Use insights to tailor 60-day upskilling plan in Docker, Airflow, and one modern analytics platform (DataIKU or Alteryx) to maximize fit for secondary opportunities (Intuituve.AI, SG Analytics)."
+    },
+    {
+      "action": "For MathCo interview preparation: Develop 2-3 detailed case studies quantifying project rescue impact\u2014timeline recovery percentage, team productivity improvement, financial impact of avoiding project failure. Explicitly map delivery leadership experience to JD's 'quality standards and KPI establishment' requirement. Prepare honest assessment of PM tooling gap with concrete 30-60-90 day learning plan to demonstrate readiness."
+    },
+    {
+      "action": "For Axtria Principal role positioning: Build narrative around business development potential by reframing CitiusTech expansion ($80K\u2192$1M) and 1,500+ provider network scale as revenue-generating portfolio growth. Identify 2-3 other account expansion examples from career history. Schedule pre-interview call to clarify whether Principal role expects hands-on data science (80%) or strategic portfolio management (80%)\u2014this determines preparation focus and likelihood of satisfaction post-hire."
+    },
+    {
+      "action": "Deprioritize Sigmoid (Rank 5) unless cross-industry transition is strategic goal. If interested despite sector mismatch, develop explicit narrative explaining how healthcare/life sciences analytical problem-solving transfers to CPG/Retail/Manufacturing (e.g., survival models \u2192 customer churn modeling, provider risk stratification \u2192 retailer/supplier segmentation). This requires significant positioning effort with uncertain ROI; only pursue if Director-level compensation premium justifies effort."
+    },
+    {
+      "action": "Create two distinct interview narratives: (1) Delivery Excellence Track: Emphasize program management, team leadership, and quantified business impact for MathCo/Intuituve.AI roles; (2) Strategic Advisor Track: Lead with C-suite relationship management, complex problem translation, and advisory scope for Axtria Principal and SG Analytics AVP roles. Practice clean transitions between narratives in mock interviews to ensure authentic positioning without appearing unfocused."
+    }
+  ]
+}

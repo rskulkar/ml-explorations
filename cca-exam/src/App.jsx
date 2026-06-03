@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const EXAM_KEY  = "cca-exam-v6";
-const BATCH_KEY = "cca-batch-progress-v6";
+const EXAM_KEY  = "cca-exam-v7";
+const BATCH_KEY = "cca-batch-progress-v7";
 
 const DOMAIN_NAMES = {
   1: "Agentic Architecture & Orchestration",
@@ -14,11 +14,15 @@ const DOMAIN_COLORS  = { 1:"#e8855a", 2:"#5a9ee8", 3:"#5ae8a0", 4:"#c85ae8", 5:"
 const DOMAIN_WEIGHTS = { 1:"27%", 2:"18%", 3:"20%", 4:"20%", 5:"15%" };
 
 const BATCHES = [
-  [[1,1],[2,2],[3,1],[4,3],[5,2]],
-  [[6,1],[7,4],[8,3],[9,2],[10,4]],
-  [[11,1],[12,3],[13,5],[14,4],[15,1]],
-  [[16,2],[17,4],[18,5],[19,3],[20,1]],
-  [[21,4],[22,5],[23,2],[24,3],[25,1]]
+  [[1,1],[2,2],[3,3]],
+  [[4,1],[5,4],[6,5]],
+  [[7,1],[8,2],[9,3]],
+  [[10,4],[11,5],[12,1]],
+  [[13,2],[14,3],[15,4]],
+  [[16,1],[17,2],[18,3]],
+  [[19,4],[20,5],[21,1]],
+  [[22,2],[23,4],[24,3]],
+  [[25,1]]
 ];
 
 const BATCH_SYS = "Return ONLY a raw JSON array. No markdown, no code fences, no explanation. Start with [ end with ].";
@@ -31,13 +35,21 @@ Questions:
 ${lines}
 
 Requirements:
-- Generic SaaS/e-commerce/devtools/enterprise scenarios only. No healthcare.
+- Generic SaaS/e-commerce/devtools/enterprise scenarios only.
 - 4 options each, exactly one correct answer.
+- Each option must be 1-2 complete sentences describing a full architectural approach.
 - Wrong options must be plausible mistakes, not obviously wrong.
 - Test architectural judgment, not API memorisation.
-- "explanation": 1-2 sentences why correct answer is right.
-- "antipattern_index": index (0-3) of the most dangerous wrong option.
-- "antipattern_reason": 1 sentence why it is an anti-pattern (use terms: context bloat, non-idempotent, missing circuit breaker, unbounded retry, prompt injection, context saturation).
+- Scenarios to use: Customer Support Agent, E-commerce Platform, Multi-Agent Pipeline,
+  Developer Productivity Tool, Code Review CI/CD, Content Moderation, Data Extraction,
+  Enterprise Knowledge Base, Marketing Automation.
+- Every question must be distinct — no repeated concepts across the batch.
+- Difficulty: medium to hard, scenario-based.
+- "explanation": 1-2 complete sentences why the correct answer is right.
+- "antipattern_index": index (0-3) of the most dangerous wrong option (must differ from "answer").
+- "antipattern_reason": 1 sentence why it is an anti-pattern. Use Claude terminology where
+  applicable: context bloat, non-idempotent tool, missing circuit breaker, unbounded retry,
+  prompt injection surface, context saturation, raw object parameter.
 
 Output a JSON array of exactly ${items.length} objects:
 [{"id":N,"domain":N,"scenario":"name","question":"text","options":["A","B","C","D"],"answer":N,"explanation":"text","antipattern_index":N,"antipattern_reason":"text"}]`;
@@ -47,10 +59,13 @@ Output a JSON array of exactly ${items.length} objects:
 async function callBatch(items) {
   const res = await fetch("/api/generate", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-vercel-protection-bypass": import.meta.env.VITE_BYPASS_SECRET || ""
+    },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 2500,
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4000,
       system: BATCH_SYS,
       messages: [{ role: "user", content: makePrompt(items) }]
     })
@@ -75,7 +90,7 @@ function buildMarkdown(questions) {
     const aO = q.options[q.antipattern_index] || "N/A";
     return `### Q${i+1}. ${q.question.slice(0,75)}${q.question.length > 75 ? "…" : ""}\n\n**✅ Correct: ${L[q.answer]}** — ${q.options[q.answer]}\n\n${q.explanation}\n\n**⚠️ Anti-Pattern: ${aL}** — ${aO}\n\n${q.antipattern_reason || "N/A"}`;
   }).join("\n\n---\n\n");
-  return `# CCA-F Mock Exam — Questions & Solutions\n_Generated: ${ts}_\n\n---\n\n## Part 1 — Questions\n\n${qSec}\n\n---\n\n## Part 2 — Solutions\n\n${sSec}\n`;
+  return `# CCA-F Mock Exam — Questions & Solutions\n_Generated: ${ts} · Model: claude-sonnet-4-20250514_\n\n---\n\n## Part 1 — Questions\n\n${qSec}\n\n---\n\n## Part 2 — Solutions\n\n${sSec}\n`;
 }
 
 function downloadMd(questions) {
@@ -92,9 +107,11 @@ const fmt     = s   => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%6
 const fmtDate = iso => iso ? new Date(iso).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : null;
 
 const GEN_MSGS = [
-  "Generating batch 1 of 5...", "Generating batch 2 of 5...",
-  "Generating batch 3 of 5...", "Generating batch 4 of 5...",
-  "Generating batch 5 of 5...", "Finalising questions..."
+  "Generating batch 1 of 9...", "Generating batch 2 of 9...",
+  "Generating batch 3 of 9...", "Generating batch 4 of 9...",
+  "Generating batch 5 of 9...", "Generating batch 6 of 9...",
+  "Generating batch 7 of 9...", "Generating batch 8 of 9...",
+  "Generating batch 9 of 9...", "Finalising questions..."
 ];
 
 // ── Styles ────────────────────────────────────────────────────────────────────
@@ -337,6 +354,7 @@ export default function App() {
       <div style={{position:"relative", zIndex:1, textAlign:"center", display:"flex", flexDirection:"column", alignItems:"center", gap:20, maxWidth:340}}>
         <div style={S.spinner}/>
         <div style={{fontFamily:"monospace", fontSize:13, color:"#e8855a", letterSpacing:1}}>GENERATING QUESTIONS</div>
+        <div style={{fontFamily:"monospace", fontSize:11, color:"#444", marginTop:-8}}>claude-sonnet-4-20250514</div>
         <div style={{fontFamily:"monospace", fontSize:12, color:"#555", minHeight:18}}>{GEN_MSGS[Math.min(genStep, 5)]}</div>
         <div style={{display:"flex", gap:6}}>
           {BATCHES.map((_, i) => (
@@ -346,7 +364,7 @@ export default function App() {
           ))}
         </div>
         <div style={{fontFamily:"monospace", fontSize:11, color:"#444"}}>
-          {genStep < BATCHES.length ? `${genStep * 5} / 25 questions saved` : "Finalising..."}
+          {genStep < BATCHES.length ? `${genStep * 3} / 25 questions saved` : "Finalising..."}
         </div>
       </div>
     </div>
@@ -411,7 +429,7 @@ export default function App() {
 
         <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:8, width:"100%"}}>
           <button style={S.btnStart} onClick={() => generate(null)}>Generate New Exam →</button>
-          <div style={{fontFamily:"monospace", fontSize:10, color:"#333", letterSpacing:1}}>5 batches · each saved on completion</div>
+          <div style={{fontFamily:"monospace", fontSize:10, color:"#333", letterSpacing:1}}>9 batches · each saved on completion</div>
         </div>
       </div>
     </div>
@@ -430,6 +448,7 @@ export default function App() {
             {passed ? "✓ PASS" : "✗ BELOW PASSING (720)"}
           </div>
           <div style={{marginTop:12, color:"#666", fontFamily:"monospace", fontSize:13}}>{score} / {questions.length} correct ({pct}%)</div>
+          <div style={{marginTop:6, color:"#444", fontFamily:"monospace", fontSize:11}}>Generated by claude-sonnet-4-20250514</div>
           <div style={{marginTop:16}}><button style={S.btnDl} onClick={() => downloadMd(questions)}>↓ Download Q&A (.md)</button></div>
         </div>
 

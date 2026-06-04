@@ -1,0 +1,18 @@
+I have generated a set of CCA-F mock exam questions. Render them as a timed exam artifact using the exact viewer style below as reference.
+
+Here is the question JSON:
+
+[PASTE YOUR qna_*.json CONTENTS HERE]
+
+Requirements for the artifact:
+- Timed exam mode: 50 minutes for 25 questions, 10 minutes for fewer
+- Question navigation grid showing answered/flagged/current states
+- Flag button per question
+- On submit: score card (scaled 100–1000, pass = 720), domain breakdown bar chart, full question review
+- Each review question shows: ✓ correct option (green), ✗ user's wrong answer (red), ⚠ anti-pattern option (amber) with "anti-pattern" label
+- Expandable explanation + anti-pattern section per question
+- Clean dark background styling matching the CCA-F exam app aesthetic (#0a0a0f background, Georgia serif font, #e8855a accent)
+- No external API calls — all questions hardcoded from the JSON above
+- Retake button reloads the artifact
+
+Do not add any questions of your own. Use only the questions from the JSON above.
